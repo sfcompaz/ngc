@@ -1,0 +1,39 @@
+<?php
+/**
+ * @file
+ * Nederlandse Go Competitie module
+ */
+
+/**
+ * Implementatie van hook_help()
+ *
+ * Toon help en module info
+ *
+ * @param path
+ *   Welk pad binnen de site gebruikt wordt
+ * @param arg
+ *   Array met huidig pad, teruggegeven door arg() functie
+ */
+function ngc_help($path, $arg) {
+  switch ($path) {
+  case "admin/help#ngc":
+    return '<p>' . t("Maak indelingen en uitslagen voor NGC") . '</p>';
+    break;
+  }
+}
+
+/**
+ * Implementatie van hook_block_info()
+ *
+ */
+function ngc_block_info() {
+  $blocks['ngc'] = array(
+    // Name in block list.
+    'info' => t('Nederlandse Go Competitie'),
+    // Default setting for cache.
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+  );
+  return $blocks;
+}
+
+
