@@ -36,4 +36,58 @@ function ngc_block_info() {
   return $blocks;
 }
 
+/**
+ * Content function
+ * 
+ * Set beginning and end dates, retrieve posts from database
+ * saved in that time period.
+ *
+ * @return
+ *  A result set of the targeted posts.
+ */
+function ngc_contents() {
+  // Get date
+  $today = getdate();
+  // Calculate date 1 week ago
+  $start_time = mktime(0, 0, 0, $today['mon'],($today['mday'] - 7), $today['year']);
+  // Get all posts from one week ago to the present
+  $end_time = time();
+  // Use Database API to retrieve current posts.
+  $query = db_select('node', 'n')
+    ->fields('n', array('nid', 'title', 'created'))
+    ->condition('status', 1)   // Published
+    ->condition('created', array($start_time, $end_time), 'BETWEEN')
+    ->orderBy('created', 'DESC')  // Most recent posts first
+    ->execute();
+  return $query;
+}
+
+function ngc_block_view($delta = '') {
+  switch ($delta) {
+    case 'ngc':
+      $block['subject'] = t('NGC Rooster');
+      if (user_access('access content')) {
+        $result = ngc_contents();
+        // Array to contain items for the block to render
+        $items = array();
+        // Iterate over the result set and format as links
+        foreach ($result as $node) {
+          $items[] = array(
+            'data' => l($node->title, 'node/' . $node->nid),
+          );
+        }  // foreach
+        if (empty($items)) {
+          $block['content'] = t('NGC rooster leeg');
+        }
+        else {
+          // Pass data through theme function
+          $block['content'] = theme('item_list', array(
+            'items' => $items));
+        }
+      
+      } // if (access)
+    return $block;
+  } // switch (delta)
+} // function ngc_block_view()
+
 
