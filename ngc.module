@@ -52,12 +52,15 @@ function ngc_contents() {
   $start_time = mktime(0, 0, 0, $today['mon'],($today['mday'] - 7), $today['year']);
   // Get all posts from one week ago to the present
   $end_time = time();
+  // Get Configuration data
+  $max_num = variable_get('ngc_max', 3);
   // Use Database API to retrieve current posts.
   $query = db_select('node', 'n')
     ->fields('n', array('nid', 'title', 'created'))
     ->condition('status', 1)   // Published
     ->condition('created', array($start_time, $end_time), 'BETWEEN')
     ->orderBy('created', 'DESC')  // Most recent posts first
+    ->range(0, $max_num)  // Max. # of items
     ->execute();
   return $query;
 }
@@ -90,4 +93,37 @@ function ngc_block_view($delta = '') {
   } // switch (delta)
 } // function ngc_block_view()
 
+/**
+ * Page callback: NGC settings
+ *
+ * @cf ngc_menu()
+ */
+function ngc_form($form, $form_state) {
+  $form['ngc_max'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum number of teams'),
+    '#default_value' => variable_get('ngc_max', 3),
+    '#size' => 2,
+    '#maxlength' => 2,
+    '#description' => t('Maximum number of teams to allow in competition'),
+    '#required' => TRUE,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Implement hook_menu()
+ */
+function ngc_menu() {
+  $items = array();
+  $items['admin/config/content/ngc'] = array(
+    'title' => 'Nederlandse Go Competitie',
+    'description' => 'Configuratiescherm NGC',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ngc_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
 

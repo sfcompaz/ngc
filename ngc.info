@@ -3,3 +3,6 @@ name = Nederlandse Go Competitie
 description = Indelingen, speelschema en uitslagen club-team toernooi van de Nederlandse Go Bond.
 core = 7.x
 package = NGC
+configure = admin/config/content/ngc
+
+
